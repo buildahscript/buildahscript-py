@@ -1,0 +1,14 @@
+#!/usr/bin/env buildahscript-py
+#| pip: requests
+
+import tarfile
+import requests
+
+with container('alpine') as cont:
+    with requests.get('https://github.com/itzg/mc-server-runner/releases/download/1.3.3/mc-server-runner_1.3.3_linux_amd64.tar.gz') as resp:
+        resp.raise_for_status()
+        with tarfile.open(resp, 'r|*') as tf:
+            for entry in tf:
+                if entry.name == 'mc-server-runner':
+                    with cont.mount() as root:
+                        tf.extract(entry, root / 'mc-server-runner')

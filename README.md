@@ -18,11 +18,16 @@ Additional
   everyting) works correctly. (See: `$_CONTAINERS_USERNS_CONFIGURED`)
 
 ```python
-#!/usr/bin/env buildahscript
+#!/usr/bin/env buildahscript-py
 #| pip: requests
 #| arg: eula: bool
 #| arg: version: str = "latest"
 #| arg: type: str = "vanilla"
+
+import tarfile
+
+import requests
+
 
 with TemporaryDirectory() as td:
     bin = td / 'bin'
@@ -55,16 +60,25 @@ with TemporaryDirectory() as td:
 
         # Build /mc
 
-        cont.config(
-            volumes=[
-                "/mc/world", "/mc/server.properties", "/mc/logs",
-                "/mc/crash-reports", "/mc/banned-ips.json",
-                "/mc/banned-players.json", "/mc/ops.json", "/mc/whitelist.json",
-            ],
-            entrypoint=["/mc-server-runner", "-shell", "/bin/sh"],
-            cmd=["/mc/launch"],
-            healthcheck=["status"],
-            healthcheck_start_period="5m",
-        )
+        cont.volumes |= {
+            "/mc/world", "/mc/server.properties", "/mc/logs",
+            "/mc/crash-reports", "/mc/banned-ips.json",
+            "/mc/banned-players.json", "/mc/ops.json", "/mc/whitelist.json",
+        }
+        cont.entrypoint = ["/mc-server-runner", "-shell", "/bin/sh"]
+        cont.cmd = ["/mc/launch"]
+        cont.healthcheck_cmd = ["status"]
+        cont.healthcheck_start_period = "5m"
+
         return cont.commit()
 ```
+
+
+shpipe
+------
+
+shpipe (`#|`) lines are used to specify metadata used by buildahscript. The basic form is `#| type: data`.
+
+* `pip`: Gives a dependency to install from PyPI, as a [requirement specifier](https://pip.pypa.io/en/stable/reference/pip_install/#requirement-specifiers)
+* `arg`: Defines a build arg, in the Python `name:type=default` form, where type
+  is a dotted-form name to a type/parsing function, and default is a python literal.
