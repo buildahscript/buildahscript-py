@@ -24,7 +24,7 @@ def scan_metadata_lines(lines):
 ARG = re.compile(r"(?P<name>\w+)\s*(?::\s*(?P<cast>[\w.]+))?\s*(?:=\s*(?P<default>.+))?")
 
 
-def parse_arg(text, *, resolve_cast=False):
+def parse_arg(text):
     """
     Parses out `name:cast=default`-styled stuff
     """
@@ -33,14 +33,11 @@ def parse_arg(text, *, resolve_cast=False):
         raw_cast = match.group('cast')
         raw_default = match.group('default')
 
-        if resolve_cast:
-            if raw_cast is None:
-                cast = str
-            else:
-                # TODO
-                raise NotImplementedError("Caster resolution not yet implemented")
+        if raw_cast is None:
+            cast = str
         else:
-            cast = raw_cast
+            # TODO
+            raise NotImplementedError("Caster resolution not yet implemented")
 
         if raw_default is not None:
             default = ast.literal_eval(raw_default)

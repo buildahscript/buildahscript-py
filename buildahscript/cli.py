@@ -62,5 +62,25 @@ def main_inner(args):
     """
     We're running inside the buildah unshare environment, actually do the build
     """
-    print("TODO: main_inner")
-    print(args)
+    # Parse buildargs
+    with open(args.script, 'rt') as script:
+        md = Metadata.from_line_iter(script)
+
+    buildargs = apply_buildargs(md.args, args.args or {})
+    print("TODO: Run script")
+    print(f"\t{buildargs!r}")
+
+
+def apply_buildargs(argdefs, argvals):
+    buildargs = {
+        name: default
+        for name, (_, default) in argdefs.items()
+    }
+    for k, v in argvals.items():
+        if k not in argdefs:
+            buildargs[k] = v
+        else:
+            cast, _ = argdefs[k]
+            buildargs[k] = cast(v)
+
+    return buildargs
