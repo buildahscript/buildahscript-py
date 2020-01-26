@@ -1,0 +1,4 @@
+#!/usr/bin/env buildahscript-py
+
+with container("nginx") as cont:
+    return cont.commit()
