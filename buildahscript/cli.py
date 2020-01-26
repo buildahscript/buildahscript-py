@@ -60,13 +60,20 @@ def _fix_path():
 
 def main_inner(args):
     """
-    We're running inside the buildah unshare environment, actually do the build
+    We're running inside the buildah unshare environment, actually do the build.
     """
     # Parse buildargs
     with open(args.script, 'rt') as script:
         md = Metadata.from_line_iter(script)
 
-    buildargs = apply_buildargs(md.args, args.args or {})
+    if args.args:
+        rawargs = dict(
+            kv.split('=', 1)
+            for kv in args.args
+        )
+    else:
+        rawargs = {}
+    buildargs = apply_buildargs(md.args, rawargs)
     print("TODO: Run script")
     print(f"\t{buildargs!r}")
 
