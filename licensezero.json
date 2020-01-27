@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "licensezero": [
+    {
+      "agentSignature": "38445ba5ca33a2216c5a4e97e63304893d428fb82f8202b22e119ad253411e936d0001c2f521622759b437dcc6770b0df95b96e2aa35ff1e709d189df7e71e02",
+      "license": {
+        "homepage": "https://github.com/minecraft-podman/buildahscript-py",
+        "jurisdiction": "US-MI",
+        "name": "James Bliss",
+        "projectID": "6aeb69c8-088b-41c2-b6ef-e7327ded1b7b",
+        "publicKey": "c1b478cdc3c93a3551423b4c2e0f1046717b3bfd0881754045fd438d5646f752",
+        "terms": "prosperity",
+        "version": "3.0.0"
+      },
+      "licensorSignature": "74902cdcb88c74362c2a0ac368517622956c8d5acbf9a71497678d704669ee2791ff1f71fda60c83098bb939e9689c5b55f04ecee50825fdcd791ca32792dc04"
+    }
+  ]
+}

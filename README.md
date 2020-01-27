@@ -82,3 +82,12 @@ shpipe (`#|`) lines are used to specify metadata used by buildahscript. The basi
 * `pip`: Gives a dependency to install from PyPI, as a [requirement specifier](https://pip.pypa.io/en/stable/reference/pip_install/#requirement-specifiers)
 * `arg`: Defines a build arg, in the Python `name:type=default` form, where type
   is a dotted-form name to a type/parsing function, and default is a python literal.
+
+
+# Licensing
+
+This package is free to use for commercial purposes for a trial period under the terms of the [Prosperity Public License](./LICENSE).
+
+Licenses for long-term commercial use are available via [licensezero.com](https://licensezero.com).
+
+[![licensezero.com pricing](https://licensezero.com/projects/6aeb69c8-088b-41c2-b6ef-e7327ded1b7b/badge.svg)](https://licensezero.com/projects/6aeb69c8-088b-41c2-b6ef-e7327ded1b7b)
