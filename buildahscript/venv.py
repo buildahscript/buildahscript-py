@@ -16,7 +16,8 @@ def make_tmp_venv(reqs):
         venv.create(td, with_pip=True)
         pip = os.path.join(td, 'bin', 'pip')
         subprocess.run([pip, 'install', 'wheel'], check=True)
-        subprocess.run([pip, 'install', *reqs], check=True)
+        if reqs:
+            subprocess.run([pip, 'install', *reqs], check=True)
 
         yield Venv(td)
 
