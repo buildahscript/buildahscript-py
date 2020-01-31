@@ -26,6 +26,9 @@ class Container:
     def __str__(self):
         return self._id
 
+    def __repr__(self):
+        return f'<{type(self).__name__} {self._id}>'
+
     def __init__(self, image):
         proc = subprocess.run(['buildah', 'from', str(image)], stdout=subprocess.PIPE, check=True)
         self._id = proc.stdout.strip()
@@ -41,10 +44,12 @@ class Container:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        subprocess.run(['buildah', 'rm', self._id], check=True)
+        subprocess.run(['buildah', 'rm', self._id], check=True, stdout=subprocess.DEVNULL)
 
-    # __exit__
-    # rm                     Remove one or more working containers
+    def commit(self):
+        # TODO: Update config
+        proc = subprocess.run(['buildah', 'commit', self._id], stdout=subprocess.PIPE, check=True)
+        return Image._from_id_only(proc.stdout.strip())
 
     # add                    Add content to the container
     # commit                 Create an image from a working container
@@ -61,7 +66,21 @@ class Container:
 
 
 class Image:
-    ...
+    _id: str
+
+    def __str__(self):
+        return self._id
+
+    def __repr__(self):
+        return f'<{type(self).__name__} {self._id}>'
+
+    @classmethod
+    def _from_id_only(cls, id):
+        # Do magic to avoid creating a container
+        self = cls.__new__(cls)
+        self._id = id
+        return self
+
     # from                   Create a working container based on an image
     # tag                    Add an additional name to a local image
     # inspect                Inspect the configuration of a container or image
