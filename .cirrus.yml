@@ -1,6 +1,2 @@
 docker_builder:
-  install_script:
-    - pip --version
-    - echo /usr/bin/*
-    - pip install xonsh
-  test_script: xonsh .ci/test.xsh
+  test_script: python2 .ci/test.py
