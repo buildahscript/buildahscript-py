@@ -28,7 +28,8 @@ def parse_arg(text):
     """
     Parses out `name:cast=default`-styled stuff
     """
-    if match := ARG.match(text):
+    match = ARG.match(text)
+    if match:
         name = match.group('name')
         raw_cast = match.group('cast')
         raw_default = match.group('default')
