@@ -1,0 +1,17 @@
+test_task:
+  container:
+    dockerfile: .ci/Dockerfile
+  env:
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    matrix:
+      - SCRIPT: ./demos/args
+      - SCRIPT: ./demos/copy
+      - SCRIPT: ./demos/deps
+      - SCRIPT: ./demos/hello-world
+      - SCRIPT: ./demos/inspect
+      - SCRIPT: ./demos/mount
+  install_script:
+    - pip install .
+  script:
+    - $SCRIPT
