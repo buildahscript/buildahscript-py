@@ -2,7 +2,7 @@
 import os
 import subprocess
 
-subprocess.check_call(['docker', 'build', '-t', 'tester', '.ci/Dockerfile'])
+subprocess.check_call(['docker', 'build', '-t', 'tester', '.ci'])
 
 for script in os.listdir('demos'):
     subprocess.check_call([
