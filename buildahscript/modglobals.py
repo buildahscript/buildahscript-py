@@ -2,7 +2,8 @@
 Global functions for the module
 """
 
-__all__ = ()
+# This is mandatory
+__all__ = ('__return__',)
 
 # build-using-dockerfile Build an image using instructions in a Dockerfile
 
@@ -45,3 +46,14 @@ class Image:
     # tag                    Add an additional name to a local image
     # inspect                Inspect the configuration of a container or image
     # rmi                    Remove one or more images from local storage
+
+
+class ReturnImage(BaseException):
+    pass
+
+
+def __return__(img):
+    if isinstance(img, Container):
+        raise TypeError("Returned a container, not an image (Did you forget .commit()?)")
+    else:
+        raise ReturnImage(img)

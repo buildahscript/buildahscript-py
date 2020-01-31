@@ -1,4 +1,7 @@
 import ast
+import sys
+
+from . import modglobals
 
 
 def parse_buildargs(argdefs, argvals):
@@ -20,8 +23,53 @@ def run_file(filename, buildargs):
     with open(filename, 'rt') as fobj:
         tree = ast.parse(fobj.read(), filename)
 
-    # TODO: Transform
-    # TODO: Globals
+    Return2Call().visit(tree)
+
+    glbls = {
+        name: getattr(modglobals, name)
+        for name in modglobals.__all__
+    }
+    glbls['__name__'] = '__script__'
+    sys.modules['__buildah__'] = modglobals
 
     code = compile(tree, filename, 'exec')
-    exec(code)
+    try:
+        exec(code, glbls, buildargs)
+    except modglobals.ReturnImage as exc:
+        image = exc.args[0]
+    else:
+        image = None
+
+    return image
+
+
+class Return2Call(ast.NodeTransformer):
+    """
+    Turn top-level return statements into calls to __return__
+    """
+    # Input: Return(value=<RETVAL>)
+    # Output: Expr(value=Call(func=Name(id='__return__', ctx=Load()), args=[<RETVAL>], keywords=[]))
+
+    def visit_FunctionDef(self, node):
+        # Don't recurse
+        return node
+
+    def visit_AsyncFunctionDef(self, node):
+        # Don't recurse
+        return node
+
+    def visit_ClassDef(self, node):
+        # Don't recurse
+        return node
+
+    def visit_Return(self, node):
+        return ast.fix_missing_locations(ast.copy_location(
+            ast.Expr(
+                value=ast.Call(
+                    func=ast.Name(id='__return__', ctx=ast.Load()),
+                    args=[node.value],
+                    keywords=[],
+                ),
+            ),
+            node,
+        ))
