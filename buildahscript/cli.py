@@ -3,7 +3,7 @@ import os
 import shutil
 import sys
 
-from .parser import Metadata
+from .metadata import Metadata
 from .venv import make_tmp_venv
 
 parser = argparse.ArgumentParser(description='Run a script to build a container')
