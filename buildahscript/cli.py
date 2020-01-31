@@ -5,6 +5,7 @@ import sys
 
 from .metadata import Metadata
 from .venv import make_tmp_venv
+from .runner import parse_buildargs, run_file
 
 parser = argparse.ArgumentParser(description='Run a script to build a container')
 parser.add_argument('script', metavar='FILE',
@@ -69,21 +70,5 @@ def main_inner(args):
         )
     else:
         rawargs = {}
-    buildargs = apply_buildargs(md.args, rawargs)
-    print("TODO: Run script")
-    print(f"\t{buildargs!r}")
-
-
-def apply_buildargs(argdefs, argvals):
-    buildargs = {
-        name: default
-        for name, (_, default) in argdefs.items()
-    }
-    for k, v in argvals.items():
-        if k not in argdefs:
-            buildargs[k] = v
-        else:
-            cast, _ = argdefs[k]
-            buildargs[k] = cast(v)
-
-    return buildargs
+    buildargs = parse_buildargs(md.args, rawargs)
+    run_file(args.script, buildargs)
