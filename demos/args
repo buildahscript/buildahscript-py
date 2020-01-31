@@ -1,6 +1,6 @@
 #!/usr/bin/env buildahscript-py
 #| arg: msg
 
-with container("alpine") as cont:
+with Container("alpine") as cont:
     cont.command = ["echo", msg]
     return cont.commit()

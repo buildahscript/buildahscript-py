@@ -1,9 +1,10 @@
 """
 Global functions for the module
 """
+import subprocess
 
 # This is mandatory
-__all__ = ('__return__',)
+__all__ = ('__return__', 'Container')
 
 # build-using-dockerfile Build an image using instructions in a Dockerfile
 
@@ -20,9 +21,28 @@ __all__ = ('__return__',)
 
 
 class Container:
-    ...
-    # __enter__
-    # from                   Create a working container based on an image
+    _id: str
+
+    def __str__(self):
+        return self._id
+
+    def __init__(self, image):
+        proc = subprocess.run(['buildah', 'from', str(image)], stdout=subprocess.PIPE, check=True)
+        self._id = proc.stdout.strip()
+
+    @classmethod
+    def _from_id_only(cls, id):
+        # Do magic to avoid creating a container
+        self = cls.__new__(cls)
+        self._id = id
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        subprocess.run(['buildah', 'rm', self._id], check=True)
+
     # __exit__
     # rm                     Remove one or more working containers
 
