@@ -6,6 +6,15 @@ import subprocess
 # This is mandatory
 __all__ = ('__return__', 'Container')
 
+
+def _buildah(*cmd, **opts):
+    return subprocess.run(
+        ['buildah', *cmd],
+        stdout=subprocess.PIPE,
+        check=True,
+        **opts
+    )
+
 # build-using-dockerfile Build an image using instructions in a Dockerfile
 
 # info                   Display Buildah system information
@@ -30,7 +39,7 @@ class Container:
         return f'<{type(self).__name__} {self._id}>'
 
     def __init__(self, image):
-        proc = subprocess.run(['buildah', 'from', str(image)], stdout=subprocess.PIPE, check=True)
+        proc = _buildah('from', str(image))
         self._id = proc.stdout.strip()
 
     @classmethod
@@ -44,11 +53,11 @@ class Container:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        subprocess.run(['buildah', 'rm', self._id], check=True, stdout=subprocess.DEVNULL)
+        _buildah('rm', self._id, stdout=subprocess.DEVNULL)
 
     def commit(self):
         # TODO: Update config
-        proc = subprocess.run(['buildah', 'commit', self._id], stdout=subprocess.PIPE, check=True)
+        proc = _buildah('commit', self._id)
         return Image._from_id_only(proc.stdout.strip())
 
     # add                    Add content to the container
