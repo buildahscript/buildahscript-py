@@ -1,3 +1,5 @@
 docker_builder:
-  install_script: pip3 install xonsh
+  install_script:
+    - pip --version
+    - pip install xonsh
   test_script: xonsh .ci/test.xsh
