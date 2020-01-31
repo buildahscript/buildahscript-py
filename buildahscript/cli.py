@@ -74,4 +74,6 @@ def main_inner(args):
     else:
         rawargs = {}
     buildargs = parse_buildargs(md.args, rawargs)
-    run_file(args.script, buildargs)
+    img = run_file(args.script, buildargs)
+    print('')
+    print(img)

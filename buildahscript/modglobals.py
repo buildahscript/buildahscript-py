@@ -8,12 +8,9 @@ __all__ = ('__return__', 'Container')
 
 
 def _buildah(*cmd, **opts):
-    return subprocess.run(
-        ['buildah', *cmd],
-        stdout=subprocess.PIPE,
-        check=True,
-        **opts
-    )
+    opts.setdefault('stdout', subprocess.PIPE)
+    opts.setdefault('check', True)
+    return subprocess.run(['buildah', *cmd], encoding='utf-8', **opts)
 
 # build-using-dockerfile Build an image using instructions in a Dockerfile
 
@@ -61,17 +58,13 @@ class Container:
         return Image._from_id_only(proc.stdout.strip())
 
     # add                    Add content to the container
-    # commit                 Create an image from a working container
     # config                 Update image configuration settings
     # copy                   Copy content into the container
     # rename                 Rename a container
     # run                    Run a command inside of the container
     # inspect                Inspect the configuration of a container or image
-
-    # LATER:
     # mount                  Mount a working container's root filesystem
     # umount                 Unmount the root file system of the specified working containers
-    # unshare                Run a command in a modified user namespace
 
 
 class Image:
