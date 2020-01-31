@@ -2,7 +2,7 @@
 # arg: msg = "This is buildahscript"
 import tempfile
 
-with Container("nginx") as cont:
+with Container("docker.io/library/nginx") as cont:
     with tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as tf:
         tf.write(f"""
 <!DOCTYPE html>

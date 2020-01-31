@@ -1,4 +1,4 @@
 #!/usr/bin/env buildahscript-py
 
-with Container("nginx") as cont:
+with Container("docker.io/library/nginx") as cont:
     return cont.commit()

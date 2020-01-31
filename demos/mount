@@ -1,7 +1,7 @@
 #!/usr/bin/env buildahscript-py
 # arg: msg = "This is buildahscript"
 
-with Container("nginx") as cont:
+with Container("docker.io/library/nginx") as cont:
     with cont.mount() as root:
         (root / "usr/share/nginx/html/index.html").write_text(f"""
 <!DOCTYPE html>
