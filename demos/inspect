@@ -1,0 +1,5 @@
+#!/usr/bin/env buildahscript-py
+from pprint import pprint
+
+with Container("nginx") as cont:
+    pprint(cont.inspect())

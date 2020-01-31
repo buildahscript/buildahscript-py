@@ -1,0 +1,17 @@
+#!/usr/bin/env buildahscript-py
+# arg: msg = "This is buildahscript"
+
+with Container("nginx") as cont:
+    with cont.mount() as root:
+        (root / "usr/share/nginx/html/index.html").write_text(f"""
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hi!</title>
+</head>
+<body>
+<p>{{msg}}</p>
+</body>
+</html>
+""")
+    return cont.commit()

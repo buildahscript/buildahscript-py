@@ -1,6 +1,9 @@
 """
 Global functions for the module
 """
+import contextlib
+import json
+import pathlib
 import subprocess
 
 # This is mandatory
@@ -52,19 +55,55 @@ class Container:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _buildah('rm', self._id, stdout=subprocess.DEVNULL)
 
+    def inspect(self):
+        """
+        Return some metadata about the container
+        """
+        proc = _buildah('inspect', '--type', 'container', self._id)
+        return json.loads(proc.stdout)
+
     def commit(self):
         # TODO: Update config
         proc = _buildah('commit', self._id)
         return Image._from_id_only(proc.stdout.strip())
 
-    # add                    Add content to the container
+    @contextlib.contextmanager
+    def mount(self):
+        """
+        Mounts the container's filesystem onto the host. Context manager.
+
+        The context manager returns a pathlib.Path, which points to the mount
+        point.
+        """
+        proc = _buildah('mount', self._id)
+        path = proc.stdout.strip()
+        yield pathlib.Path(path)
+        _buildah('umount', self._id)
+
+    def copy_in(self, src, dst):
+        """
+        Copies a file or directory from the host into the container.
+
+        dst must include the name that will be taken, not just the parent
+        directory.
+
+        This is wrong: copy_in("myfile", "/usr/bin")
+        This is right: copy_in("myfile", "/usr/bin/foobar")
+        """
+        _buildah('copy', self._id, str(src), str(dst))
+
+    def copy_out(self, src, dst):
+        """
+        Copies a file or directory out of the container to the host.
+
+        dst must include the name that will be taken, not just the parent
+        directory.
+        """
+        raise NotImplementedError
+
     # config                 Update image configuration settings
-    # copy                   Copy content into the container
     # rename                 Rename a container
     # run                    Run a command inside of the container
-    # inspect                Inspect the configuration of a container or image
-    # mount                  Mount a working container's root filesystem
-    # umount                 Unmount the root file system of the specified working containers
 
 
 class Image:

@@ -1,0 +1,19 @@
+#!/usr/bin/env buildahscript-py
+# arg: msg = "This is buildahscript"
+import tempfile
+
+with Container("nginx") as cont:
+    with tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as tf:
+        tf.write(f"""
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hi!</title>
+</head>
+<body>
+<p>{{msg}}</p>
+</body>
+</html>
+""")
+        cont.copy_in(tf.name, "/usr/share/nginx/html/index.html")
+    return cont.commit()
