@@ -2,9 +2,11 @@
 Global functions for the module
 """
 import contextlib
+import copy
 import json
 import pathlib
 import subprocess
+import typing
 
 # This is mandatory
 __all__ = ('__return__', 'Container')
@@ -32,6 +34,10 @@ def _buildah(*cmd, **opts):
 class Container:
     _id: str
 
+    environ: typing.Dict[str, str]
+    command: typing.List[str]
+    entrypoint: typing.List[str]
+
     def __str__(self):
         return self._id
 
@@ -41,13 +47,34 @@ class Container:
     def __init__(self, image):
         proc = _buildah('from', str(image))
         self._id = proc.stdout.strip()
+        self._init_config()
 
     @classmethod
     def _from_id_only(cls, id):
         # Do magic to avoid creating a container
         self = cls.__new__(cls)
         self._id = id
+        self._init_config()
         return self
+
+    def _init_config(self):
+        """
+        Initialize the config attrs
+        """
+        info = self.inspect()
+        kinda_config = json.loads(info['Config'])
+        config = kinda_config['config']  # Might be 'container_config'??
+        self.environ = dict(
+            item.split('=', 1)
+            for item in config['Env'] or {}
+        )
+        self.command = config['Cmd'] or []
+        self.entrypoint = config['Entrypoint'] or []
+        self.labels = config['Labels'] or {}
+        self.volumes = set(config['Volumes'].keys()) if config['Volumes'] else set()
+        # TODO: ExposedPorts
+        # TODO: StopSignal
+        self._snapshot = copy.deepcopy(vars(self))
 
     def __enter__(self):
         return self
