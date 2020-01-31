@@ -36,10 +36,13 @@ def main_outer(args):
     with open(args.script, 'rt') as script:
         md = Metadata.from_line_iter(script)
 
-    with make_tmp_venv(md.deps) as venv:
-        my_path = sys.path
-        inner_path = venv.python_path()
-        os.environ['PYTHONPATH'] = os.pathsep.join(inner_path + my_path)
+    if md.deps:
+        with make_tmp_venv(md.deps) as venv:
+            my_path = sys.path
+            inner_path = venv.python_path()
+            os.environ['PYTHONPATH'] = os.pathsep.join(inner_path + my_path)
+            os.execvp('buildah', ['buildah', 'unshare', *sys.argv])
+    else:
         os.execvp('buildah', ['buildah', 'unshare', *sys.argv])
 
 
