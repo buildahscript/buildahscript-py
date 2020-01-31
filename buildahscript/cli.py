@@ -37,10 +37,10 @@ def main_outer(args):
         md = Metadata.from_line_iter(script)
 
     with make_tmp_venv(md.deps) as venv:
-        print(venv.python_path())
+        my_path = sys.path
+        inner_path = venv.python_path()
+        os.environ['PYTHONPATH'] = os.pathsep.join(inner_path + my_path)
         os.execvp('buildah', ['buildah', 'unshare', *sys.argv])
-
-    # FIXME: Cleanup venv
 
 
 def _fix_path():
