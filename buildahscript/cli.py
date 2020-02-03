@@ -13,7 +13,7 @@ parser.add_argument('script', metavar='FILE',
 parser.add_argument('--build-arg', metavar="NAME=VALUE", dest='args', action='append',
                     help='Specify a build argument')
 parser.add_argument('--tag', '-t', metavar="NAME", dest='tags', action='append',
-                    help='tag to apply to the resulting container')
+                    help='tag to apply to the resulting image')
 
 
 def main():
@@ -40,6 +40,7 @@ def main_outer(args):
         with make_tmp_venv(md.deps) as venv:
             my_path = sys.path
             inner_path = venv.python_path()
+            # This feels bad, but careful thought seems like it'll be fine?
             os.environ['PYTHONPATH'] = os.pathsep.join(inner_path + my_path)
             os.execvp('buildah', ['buildah', 'unshare', *sys.argv])
     else:
