@@ -53,7 +53,7 @@ with TemporaryDirectory() as td:
             "/mc/banned-players.json", "/mc/ops.json", "/mc/whitelist.json",
         }
         cont.entrypoint = ["/mc-server-runner", "-shell", "/bin/sh"]
-        cont.cmd = ["/mc/launch"]
+        cont.command = ["/mc/launch"]
         cont.healthcheck_cmd = ["status"]
         cont.healthcheck_start_period = "5m"
 
