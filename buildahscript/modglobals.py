@@ -31,12 +31,41 @@ def _buildah(*cmd, **opts):
 # logout                 Logout of a container registry
 
 
+def _dict_diff(old, new):
+    """
+    Compares two dicts, returning two iterables: the keys that have been added
+    or changed, and the keys that have been deleted.
+    """
+    oldkeys = set(old.keys())
+    newkeys = set(new.keys())
+    changed = newkeys - oldkeys
+    deleted = oldkeys - newkeys
+    for key in newkeys & oldkeys:
+        if new[key] != old[key]:
+            changed.add(key)
+
+    assert len(changed & deleted) == 0
+    return changed, deleted
+
+
+def _join_shellwords(seq):
+    """
+    Joins a sequence together, parsable https://github.com/mattn/go-shellwords
+
+    This exists because buildah config --cmd uses it
+    """
+    # FIXME: Handle ' in items
+    return " ".join(f"'{s}'" for s in seq)
+
+
 class Container:
     _id: str
 
     environ: typing.Dict[str, str]
     command: typing.List[str]
     entrypoint: typing.List[str]
+    labels: typing.Dict[str, str]
+    volumes: typing.Set[str]
 
     def __str__(self):
         return self._id
@@ -74,7 +103,49 @@ class Container:
         self.volumes = set(config['Volumes'].keys()) if config['Volumes'] else set()
         # TODO: ExposedPorts
         # TODO: StopSignal
+        # TODO: Author, comment, created by, domainname, shell, user, workingdir
+        self._snapshot_config()
+
+    def _snapshot_config(self):
+        """
+        Snapshot config for future comparison
+        """
         self._snapshot = copy.deepcopy(vars(self))
+
+    def _produce_config_args(self):
+        """
+        Compares the config attrs to the snapshot and generates args
+        """
+        args = []
+
+        # Simple stuff: command, entrypoint
+        if self.command != self._snapshot['command']:
+            args += ['--cmd', _join_shellwords(self.command)]
+        if self.entrypoint != self._snapshot['entrypoint']:
+            args += ['--entrypoint', json.dumps(self.entrypoint)]
+
+        # Environment
+        env_add, env_del = _dict_diff(self._snapshot['environ'], self.environ)
+        for key in env_add:
+            args += ['--env', f"{key}={self.environ[key]}"]
+        for key in env_del:
+            args += ['--env', f"{key}-"]
+
+        # Volumes
+        vol_add = self.volumes - self._snapshot['volumes']
+        vol_del = self._snapshot['volumes'] - self.volumes
+        for v in vol_add:
+            args += ['--volumes', v]
+        for v in vol_del:
+            args += ['--volumes', f"{v}-"]
+
+        return args
+
+    def _commit_config(self):
+        """
+        Commit any config changes to buildah
+        """
+        _buildah('config', *self._produce_config_args(), self._id)
 
     def __enter__(self):
         return self
@@ -90,7 +161,7 @@ class Container:
         return json.loads(proc.stdout)
 
     def commit(self):
-        # TODO: Update config
+        self._commit_config()
         proc = _buildah('commit', self._id)
         return Image._from_id_only(proc.stdout.strip())
 

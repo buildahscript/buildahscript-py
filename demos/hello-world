@@ -1,4 +1,5 @@
 #!/usr/bin/env buildahscript-py
 
-with Container("nginx") as cont:
+with Container("alpine") as cont:
+    cont.command = ['echo', 'Hello, world!']
     return cont.commit()
