@@ -199,7 +199,44 @@ class Container:
         """
         raise NotImplementedError
 
-    # config                 Update image configuration settings
+    def run(
+        self, cmd, *,
+        # buildah flags
+        shell=False, user=None, volumes=None, mounts=None,
+        # TODO: cap add/drop, hostname, ipc, isolation, network, pid, uts
+        # Subprocess flags
+        stdin=None, input=None, stdout=None, stderr=None,
+        # TODO: timeout, cwd, env
+    ):
+        args = []
+        opts = {
+            'stdin': stdin,
+            'input': input,
+            'stdout': stdout,
+            'stderr': stderr,
+        }
+
+        if user is not None:
+            args += ['--user', str(user)]
+
+        if volumes is not None:
+            for vol in volumes:
+                if isinstance(vol, str):
+                    args += ['--volume', vol]
+                else:
+                    args += ['--volume', ':'.join(vol)]
+
+        if mounts is not None:
+            for mnt in mounts:
+                args += [
+                    '--mount', ','.join(f"{k}={v}" for k, v in mnt.items())
+                ]
+
+        if shell:
+            raise NotImplementedError("shell not implemented yet")
+
+        return _buildah('run', *args, '--', self._id, *cmd, **opts)
+
     # rename                 Rename a container
     # run                    Run a command inside of the container
 

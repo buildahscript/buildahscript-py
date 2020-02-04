@@ -1,0 +1,6 @@
+#!/usr/bin/env buildahscript-py
+
+with Container("alpine") as cont:
+    cont.run(["tee", "/msg"], input="meow\n")
+    cont.command = ['cat', '/msg']
+    return cont.commit()
