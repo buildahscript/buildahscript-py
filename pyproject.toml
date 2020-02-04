@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "buildahscript"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tool for buildah scripts"
 authors = ["Jamie Bliss <jamie@ivyleav.es>"]
-license = "GPL-3.0"
+license = "prosperity"
+readme = "README.md"
+homepage = "https://buildahscript.github.io/"
+repository = "https://github.com/buildahscript/buildahscript-py"
 
 [tool.poetry.dependencies]
 python = "^3.7"
