@@ -101,6 +101,7 @@ class Container:
         self.entrypoint = config['Entrypoint'] or []
         self.labels = config['Labels'] or {}
         self.volumes = set(config['Volumes'].keys()) if config['Volumes'] else set()
+        self.workdir = config['WorkingDir']
         # TODO: ExposedPorts
         # TODO: StopSignal
         # TODO: Author, comment, created by, domainname, shell, user, workingdir
@@ -118,11 +119,13 @@ class Container:
         """
         args = []
 
-        # Simple stuff: command, entrypoint
+        # Simple stuff: command, entrypoint, workdir
         if self.command != self._snapshot['command']:
             args += ['--cmd', _join_shellwords(self.command)]
         if self.entrypoint != self._snapshot['entrypoint']:
             args += ['--entrypoint', json.dumps(self.entrypoint)]
+        if self.workdir != self._snapshot['workdir']:
+            args += ['--workingdir', self.workdir]
 
         # Environment
         env_add, env_del = _dict_diff(self._snapshot['environ'], self.environ)
