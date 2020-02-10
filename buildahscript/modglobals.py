@@ -148,6 +148,8 @@ class Container:
         """
         Commit any config changes to buildah
         """
+        if not hasattr(self, '_snapshot'):
+            return
         _buildah('config', *self._produce_config_args(), self._id)
 
     def __enter__(self):
@@ -160,6 +162,7 @@ class Container:
         """
         Return some metadata about the container
         """
+        self._commit_config()
         proc = _buildah('inspect', '--type', 'container', self._id)
         return json.loads(proc.stdout)
 
@@ -211,6 +214,7 @@ class Container:
         stdin=None, input=None, stdout=None, stderr=None,
         # TODO: timeout, cwd, env
     ):
+        self._commit_config()
         args = []
         opts = {
             'stdin': stdin,
