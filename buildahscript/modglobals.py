@@ -139,9 +139,9 @@ class Container:
         vol_add = self.volumes - self._snapshot['volumes']
         vol_del = self._snapshot['volumes'] - self.volumes
         for v in vol_add:
-            args += ['--volumes', v]
+            args += ['--volume', v]
         for v in vol_del:
-            args += ['--volumes', f"{v}-"]
+            args += ['--volume', f"{v}-"]
 
         return args
 
