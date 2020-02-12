@@ -76,5 +76,9 @@ def main_inner(args):
         rawargs = {}
     buildargs = parse_buildargs(md.args, rawargs)
     img = run_file(args.script, buildargs)
-    print('')
-    print(img)
+
+    if img is not None:
+        for tag in args.tags:
+            img.add_tag(tag)
+        print('')
+        print(img)
