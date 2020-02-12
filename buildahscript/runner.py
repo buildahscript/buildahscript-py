@@ -1,4 +1,5 @@
 import ast
+import os
 import sys
 
 from . import modglobals
@@ -25,11 +26,14 @@ def run_file(filename, buildargs):
 
     Return2Call().visit(tree)
 
+    sys.path = [os.path.dirname(filename)] + sys.path
+
     glbls = {
         name: getattr(modglobals, name)
         for name in modglobals.__all__
     }
     glbls['__name__'] = '__script__'
+    glbls['__args__'] = buildargs
     glbls.update(buildargs)
     sys.modules['__buildah__'] = modglobals
 
