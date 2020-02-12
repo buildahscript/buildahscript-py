@@ -67,6 +67,7 @@ class Container:
     entrypoint: typing.List[str]
     labels: typing.Dict[str, str]
     volumes: typing.Set[str]
+    workdir: str
 
     def __str__(self):
         return self._id
