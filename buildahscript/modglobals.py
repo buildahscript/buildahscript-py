@@ -272,13 +272,14 @@ class Image:
 
     @classmethod
     def _from_id_only(cls, id):
-        # Do magic to avoid creating a container
-        self = cls.__new__(cls)
+        self = cls()
         self._id = id
         return self
 
+    def add_tag(self, tag):
+        _buildah('tag', self._id, tag)
+
     # from                   Create a working container based on an image
-    # tag                    Add an additional name to a local image
     # inspect                Inspect the configuration of a container or image
     # rmi                    Remove one or more images from local storage
 
