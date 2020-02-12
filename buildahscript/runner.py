@@ -30,11 +30,12 @@ def run_file(filename, buildargs):
         for name in modglobals.__all__
     }
     glbls['__name__'] = '__script__'
+    glbls.update(buildargs)
     sys.modules['__buildah__'] = modglobals
 
     code = compile(tree, filename, 'exec')
     try:
-        exec(code, glbls, buildargs)
+        exec(code, glbls)
     except modglobals.ReturnImage as exc:
         image = exc.args[0]
     else:
