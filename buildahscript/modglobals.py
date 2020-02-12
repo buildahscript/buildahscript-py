@@ -5,6 +5,7 @@ import contextlib
 import copy
 import json
 import pathlib
+import shutil
 import subprocess
 import typing
 
@@ -203,7 +204,19 @@ class Container:
         dst must include the name that will be taken, not just the parent
         directory.
         """
-        raise NotImplementedError
+        dst = pathlib.Path(dst)
+        # Cleanup what already exists
+        if dst.is_dir():
+            shutil.rmtree(dst)
+        elif dst.exists():
+            dst.unlink()
+
+        with self.mount() as root:
+            fullsrc = root / src.lstrip('/')
+            if fullsrc.is_dir():
+                shutil.copytree(fullsrc, dst)
+            else:
+                shutil.copy2(fullsrc, dst)
 
     def run(
         self, cmd, *,
