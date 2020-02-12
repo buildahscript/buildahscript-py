@@ -78,7 +78,8 @@ def main_inner(args):
     img = run_file(args.script, buildargs)
 
     if img is not None:
-        for tag in args.tags:
-            img.add_tag(tag)
+        if args.tags:
+            for tag in args.tags:
+                img.add_tag(tag)
         print('')
         print(img)
