@@ -1,5 +1,5 @@
 #!/usr/bin/env buildahscript-py
-#| arg: msg
+#| arg: msg: str.title
 
 with Container("alpine") as cont:
     cont.command = ["echo", msg]
