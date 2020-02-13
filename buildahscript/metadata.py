@@ -6,6 +6,8 @@ import dataclasses
 import re
 import typing
 
+from ._resolver import resolve_dotted_path
+
 
 def scan_metadata_lines(lines):
     """
@@ -37,8 +39,7 @@ def parse_arg(text):
         if raw_cast is None:
             cast = str
         else:
-            # TODO
-            raise NotImplementedError("Caster resolution not yet implemented")
+            cast = resolve_dotted_path(raw_cast)
 
         if raw_default is not None:
             default = ast.literal_eval(raw_default)
