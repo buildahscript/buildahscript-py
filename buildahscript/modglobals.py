@@ -93,17 +93,20 @@ class Container:
         Initialize the config attrs
         """
         info = self.inspect()
-        kinda_config = json.loads(info['Config'])
-        config = kinda_config['config']  # Might be 'container_config'??
+        if info['Config']:
+            kinda_config = json.loads(info['Config'])
+            config = kinda_config['config']  # Might be 'container_config'??
+        else:
+            config = {}
         self.environ = dict(
             item.split('=', 1)
-            for item in config['Env'] or {}
+            for item in config.get('Env') or {}
         )
-        self.command = config['Cmd'] or []
-        self.entrypoint = config['Entrypoint'] or []
-        self.labels = config['Labels'] or {}
-        self.volumes = set(config['Volumes'].keys()) if config['Volumes'] else set()
-        self.workdir = config['WorkingDir']
+        self.command = config.get('Cmd') or []
+        self.entrypoint = config.get('Entrypoint') or []
+        self.labels = config.get('Labels') or {}
+        self.volumes = set(config['Volumes'].keys()) if config.get('Volumes') else set()
+        self.workdir = config.get('WorkingDir') or ""
         # TODO: ExposedPorts
         # TODO: StopSignal
         # TODO: Author, comment, created by, domainname, shell, user, workingdir
