@@ -7,6 +7,7 @@ import json
 import pathlib
 import shutil
 import subprocess
+import urllib.request
 import typing
 
 # This is mandatory
@@ -261,8 +262,28 @@ class Container:
 
         return _buildah('run', *args, '--', self._id, *cmd, **opts)
 
+    def add_url(self, url, dest, *, chmod=None):
+        """
+        Download a file at the given URL and put it at dest.
+
+        Fails if the server returns an error.
+
+        Additional arguments:
+        * chmod: If set, the unix permissions are set to this
+        """
+        with self.mount() as root:
+            if dest.startswith('/'):
+                hostdest = root / dest.lstrip('/')
+            else:
+                raise NotImplementedError("Resolving relative paths not implemented")
+            with urllib.request.urlopen(url) as src:
+                with hostdest.open('wb') as dest:
+                    shutil.copyfileobj(src, dest)
+
+            if chmod is not None:
+                hostdest.chmod(chmod)
+
     # rename                 Rename a container
-    # run                    Run a command inside of the container
 
 
 class Image:
@@ -293,6 +314,11 @@ class ReturnImage(BaseException):
 
 
 def __return__(img):
+    """
+    What build script's return gets compiled in to.
+
+    Immediately exits the build, returning the given image.
+    """
     if isinstance(img, Container):
         raise TypeError("Returned a container, not an image (Did you forget .commit()?)")
     else:
