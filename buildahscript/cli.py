@@ -68,6 +68,7 @@ def main_inner(args):
         md = Metadata.from_line_iter(script)
 
     if args.args:
+        # TODO: Better error message if an arg doesn't have a '='
         rawargs = dict(
             kv.split('=', 1)
             for kv in args.args
@@ -75,11 +76,17 @@ def main_inner(args):
     else:
         rawargs = {}
     buildargs = parse_buildargs(md.args, rawargs)
+
+    # Run the script
     img = run_file(args.script, buildargs)
 
+    # Do some things if the script returned an image
     if img is not None:
         if args.tags:
             for tag in args.tags:
                 img.add_tag(tag)
         print('')
         print(img)
+    else:
+        if args.tags:
+            print("Warning: No image to tag", file=sys.stderr)
