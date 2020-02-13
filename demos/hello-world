@@ -1,5 +1,7 @@
 #!/usr/bin/env buildahscript-py
 
-with Container("alpine") as cont:
-    cont.command = ['echo', 'Hello, world!']
+with Container("scratch") as cont:
+    with cont.mount() as root:
+        (root / "hello-world").write_text("Hello, World!")
+
     return cont.commit()
