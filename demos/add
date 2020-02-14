@@ -1,0 +1,5 @@
+#!/usr/bin/env buildahscript-py
+
+with Container('alpine') as cont:
+    cont.add_url('https://bootstrap.saltstack.com', "/tmp/salt-bootstrap", chmod=0o755)
+    return cont.commit()
