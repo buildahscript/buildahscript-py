@@ -229,7 +229,7 @@ class Container:
         shell=False, user=None, volumes=None, mounts=None,
         # TODO: cap add/drop, hostname, ipc, isolation, network, pid, uts
         # Subprocess flags
-        stdin=None, input=None, stdout=None, stderr=None,
+        stdin=None, input=None, stdout=None, stderr=None, text=None,
         # TODO: timeout, cwd, env
     ):
         self._commit_config()
@@ -239,6 +239,7 @@ class Container:
             'input': input,
             'stdout': stdout,
             'stderr': stderr,
+            'text': text,
         }
 
         if user is not None:
