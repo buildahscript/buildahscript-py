@@ -76,8 +76,12 @@ class Container:
     def __repr__(self):
         return f'<{type(self).__name__} {self._id}>'
 
-    def __init__(self, image):
-        proc = _buildah('from', str(image))
+    def __init__(self, image, *, mounts=None):
+        args = []
+        if mounts:
+            for mntinfo in mounts:
+                args += ['--volume', ':'.join(map(str, mntinfo))]
+        proc = _buildah('from', *args, str(image))
         self._id = proc.stdout.strip()
         self._init_config()
 
