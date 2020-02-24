@@ -230,7 +230,7 @@ class Container:
     def run(
         self, cmd, *,
         # buildah flags
-        shell=False, user=None, volumes=None, mounts=None,
+        shell=False, user=None, volumes=None, mounts=None, terminal=False,
         # TODO: cap add/drop, hostname, ipc, isolation, network, pid, uts
         # Subprocess flags
         stdin=None, input=None, stdout=None, stderr=None, text=None,
@@ -261,6 +261,9 @@ class Container:
                 args += [
                     '--mount', ','.join(f"{k}={v}" for k, v in mnt.items())
                 ]
+
+        if terminal:
+            args += ['--terminal']
 
         if shell:
             raise NotImplementedError("shell not implemented yet")
