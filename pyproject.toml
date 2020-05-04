@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "buildahscript"
-version = "0.3.0"
+version = "0.4.0"
 description = "Tool for buildah scripts"
 authors = ["Jamie Bliss <jamie@ivyleav.es>"]
 license = "prosperity"
