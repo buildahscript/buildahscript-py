@@ -312,9 +312,19 @@ class Image:
     def add_tag(self, tag):
         _buildah('tag', self._id, tag)
 
-    # from                   Create a working container based on an image
-    # inspect                Inspect the configuration of a container or image
-    # rmi                    Remove one or more images from local storage
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _buildah('rmi', self._id, stdout=subprocess.DEVNULL)
+
+    def inspect(self):
+        """
+        Return some metadata about the image
+        """
+        self._commit_config()
+        proc = _buildah('inspect', '--type', 'image', self._id)
+        return json.loads(proc.stdout)
 
 
 class ReturnImage(BaseException):
