@@ -296,7 +296,7 @@ class Image:
     _id: str
 
     def __init__(self, ident):
-        self._id = ident
+        self._id = self._resolve(ident)
 
     def __str__(self):
         return self._id
@@ -312,12 +312,17 @@ class Image:
     def exists(self):
         try:
             self.inspect()
-        except Exception:
+        except Exception:  # FIXME: Use a more specific error
             return False
         else:
             return True
 
     def add_tag(self, tag):
+        """
+        Add a name to this image.
+
+        If no tag is given, :latest is used.
+        """
         _buildah('tag', self._id, tag)
 
     def __enter__(self):
@@ -350,6 +355,14 @@ class Image:
         proc = _buildah(*cmd)
 
         yield from json.loads(proc.stdout)
+
+    @classmethod
+    def _resolve(cls, id):
+        if any(img['id'] == id for img in cls.list()):
+            return id
+
+        proc = _buildah('pull', '--quiet', id)
+        return proc.stdout.strip()
 
 
 class ReturnImage(BaseException):
