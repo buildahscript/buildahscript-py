@@ -11,7 +11,7 @@ import urllib.request
 import typing
 
 # This is mandatory
-__all__ = ('__return__', 'Container', 'Image')
+__all__ = ('__return__', 'Container', 'Image', 'ImageNotFoundError')
 
 
 def _buildah(*cmd, **opts):
@@ -292,6 +292,12 @@ class Container:
                 hostdest.chmod(chmod)
 
 
+class ImageNotFoundError(Exception):
+    """
+    Could not locate the given image
+    """
+
+
 class Image:
     _id: str
 
@@ -306,7 +312,9 @@ class Image:
 
     @classmethod
     def _from_id_only(cls, id):
-        self = cls(id)
+        # Do magic to avoid extra work, we already know we have an ID
+        self = cls.__new__(cls)
+        self._id = id
         return self
 
     def exists(self):
@@ -347,22 +355,26 @@ class Image:
 
         If all is True, also include intermediate build images.
         """
-        cmd = ['images']
+        cmd = ['images', '--json']
         if all:
             cmd += ['--all']
         if name:
             cmd += [name]
         proc = _buildah(*cmd)
 
+        # TODO: Add a way to get the Image from each item
         yield from json.loads(proc.stdout)
 
     @classmethod
     def _resolve(cls, id):
         if any(img['id'] == id for img in cls.list()):
             return id
-
-        proc = _buildah('pull', '--quiet', id)
-        return proc.stdout.strip()
+        try:
+            proc = _buildah('pull', '--quiet', id)
+        except Exception:
+            raise ImageNotFoundError(f"Could not find {id}")
+        else:
+            return proc.stdout.strip()
 
 
 class ReturnImage(BaseException):
