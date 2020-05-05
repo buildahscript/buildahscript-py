@@ -291,8 +291,6 @@ class Container:
             if chmod is not None:
                 hostdest.chmod(chmod)
 
-    # rename                 Rename a container
-
 
 class Image:
     _id: str
