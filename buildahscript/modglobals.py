@@ -11,7 +11,7 @@ import urllib.request
 import typing
 
 # This is mandatory
-__all__ = ('__return__', 'Container')
+__all__ = ('__return__', 'Container', 'Image')
 
 
 def _buildah(*cmd, **opts):
