@@ -295,6 +295,9 @@ class Container:
 class Image:
     _id: str
 
+    def __init__(self, ident):
+        self._id = ident
+
     def __str__(self):
         return self._id
 
@@ -303,9 +306,16 @@ class Image:
 
     @classmethod
     def _from_id_only(cls, id):
-        self = cls()
-        self._id = id
+        self = cls(id)
         return self
+
+    def exists(self):
+        try:
+            self.inspect()
+        except Exception:
+            return False
+        else:
+            return True
 
     def add_tag(self, tag):
         _buildah('tag', self._id, tag)
@@ -320,9 +330,26 @@ class Image:
         """
         Return some metadata about the image
         """
-        self._commit_config()
         proc = _buildah('inspect', '--type', 'image', self._id)
         return json.loads(proc.stdout)
+
+    @classmethod
+    def list(cls, name=None, *, all=False):
+        """
+        Lists images available locally.
+
+        If a name is given, only list ((something something)).
+
+        If all is True, also include intermediate build images.
+        """
+        cmd = ['images']
+        if all:
+            cmd += ['--all']
+        if name:
+            cmd += [name]
+        proc = _buildah(*cmd)
+
+        yield from json.loads(proc.stdout)
 
 
 class ReturnImage(BaseException):
