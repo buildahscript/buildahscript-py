@@ -302,6 +302,11 @@ class Image:
     _id: str
 
     def __init__(self, ident):
+        """
+        * ident: The hex ID or other identifier of the image
+
+        Will pull the image if not available.
+        """
         self._id = self._resolve(ident)
 
     def __str__(self):
@@ -316,14 +321,6 @@ class Image:
         self = cls.__new__(cls)
         self._id = id
         return self
-
-    def exists(self):
-        try:
-            self.inspect()
-        except Exception:  # FIXME: Use a more specific error
-            return False
-        else:
-            return True
 
     def add_tag(self, tag):
         """
@@ -369,12 +366,27 @@ class Image:
     def _resolve(cls, id):
         if any(img['id'] == id for img in cls.list()):
             return id
+
+        # TODO: Only do this if not available locally
         try:
-            proc = _buildah('pull', '--quiet', id)
-        except Exception:
-            raise ImageNotFoundError(f"Could not find {id}")
+            proc = _buildah('pull', '--quiet', id, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
+            raise ImageNotFoundError(f"Could not find image {id}")
         else:
             return proc.stdout.strip()
+
+    @classmethod
+    def pull(cls, name):
+        """
+        Pulls down the given image.
+        """
+        try:
+            proc = _buildah('pull', name)
+        except subprocess.CalledProcessError:
+            raise ImageNotFoundError(f"Could not find image {name}")
+        else:
+            id = proc.stdout.strip()
+            return cls._from_id_only(id)
 
 
 class ReturnImage(BaseException):
