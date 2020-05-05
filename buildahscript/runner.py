@@ -34,6 +34,7 @@ def run_file(filename, buildargs):
     }
     glbls['__name__'] = '__script__'
     glbls['__args__'] = buildargs
+    glbls['__file__'] = filename
     glbls.update(buildargs)
     sys.modules['__buildah__'] = modglobals
 
