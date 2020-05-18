@@ -367,11 +367,11 @@ class Image:
         if any(img['id'] == id for img in cls.list()):
             return id
 
-        # TODO: Only do this if not available locally
+        # TODO: Use `buildah inspect` to test if it's available locally.
         try:
             proc = _buildah('pull', '--quiet', id, stderr=subprocess.DEVNULL)
-        except subprocess.CalledProcessError:
-            raise ImageNotFoundError(f"Could not find image {id}")
+        except subprocess.CalledProcessError as exc:
+            raise ImageNotFoundError(f"Could not find image {id}") from exc
         else:
             return proc.stdout.strip()
 
@@ -382,8 +382,8 @@ class Image:
         """
         try:
             proc = _buildah('pull', name)
-        except subprocess.CalledProcessError:
-            raise ImageNotFoundError(f"Could not find image {name}")
+        except subprocess.CalledProcessError as exc:
+            raise ImageNotFoundError(f"Could not find image {name}") from exc
         else:
             id = proc.stdout.strip()
             return cls._from_id_only(id)
