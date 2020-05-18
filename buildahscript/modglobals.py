@@ -160,7 +160,9 @@ class Container:
         """
         if not hasattr(self, '_snapshot'):
             return
-        _buildah('config', *self._produce_config_args(), self._id)
+        args = self._produce_config_args()
+        if args:
+            _buildah('config', *args, self._id)
 
     def __enter__(self):
         return self
